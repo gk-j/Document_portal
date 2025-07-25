@@ -1,3 +1,4 @@
 venv
-
+document_portal.egg-info
+.env
 local.txt
