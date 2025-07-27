@@ -1,4 +1,8 @@
-venv
+venv/
 document_portal.egg-info
 .env
 local.txt
+__pycache__/
+logs/
+*.pyc
+test.py
