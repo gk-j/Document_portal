@@ -79,7 +79,7 @@ import structlog
 
 
 
-class CustomLogger:
+class customLogger:
     def __init__(self, log_dir="logs"):
         # Ensure logs directory exists
         self.logs_dir = os.path.join(os.getcwd(), log_dir)
@@ -124,6 +124,7 @@ class CustomLogger:
 
 # --- Usage Example ---
 if __name__ == "__main__":
-    logger = CustomLogger().get_logger(__file__)
+    logger = customLogger().get_logger(__file__)
     logger.info("User uploaded a file", user_id=123, filename="report.pdf")
     logger.error("Failed to process PDF", error="File not found", user_id=123)
+    logger.info("Name updated",user_id=123)
