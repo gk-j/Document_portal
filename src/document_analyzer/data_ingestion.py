@@ -1,4 +1,5 @@
 import os
+import sys
 import fitz # wrapper of pypdf
 import uuid
 from datetime import datetime
@@ -27,12 +28,12 @@ class DocumentHandler:
 
         except Exception as e :
             self.log.error(f"Error Initializing DocumentHandler: {e}")
-            raise DocumentPortalException("Error Initializing DocumentHandler",e) from e 
+            raise DocumentPortalException("Error Initializing DocumentHandler",sys) 
     def save_pdf(self,uploaded_file):
         try:
             filename = os.path.basename(uploaded_file.name)
             if not filename.lower().endswith(".pdf"):
-                raise DocumentPortalException("Invalid file type. Only PDFs are allowed")
+                raise ValueError("Invalid file type. Only PDFs are allowed")
             save_path = os.path.join(self.session_path,filename)
             with open(save_path ,"wb") as f :
                 f.write(uploaded_file.getbuffer()) # Saves uploaded file
@@ -42,7 +43,7 @@ class DocumentHandler:
 
         except Exception as e:
             self.log.error(f"Error Saving PDF: {e}")
-            raise DocumentPortalException("Error Saving PDF",e) from e 
+            raise DocumentPortalException("Error Saving PDF",sys)
         
 
     def read_pdf(self,pdf_path:str)->str:
@@ -56,12 +57,11 @@ class DocumentHandler:
             return text
         except Exception as e:
             self.log.error(f"Error Reading PDF: {e}")
-            raise DocumentPortalException("Error Reading PDF",e) from e     
+            raise DocumentPortalException("Error Reading PDF",sys)    
         
 
 if __name__=="__main__":
     
-
     from pathlib import Path
     from io import BytesIO
 
