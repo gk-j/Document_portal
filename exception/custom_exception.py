@@ -2,7 +2,7 @@ import traceback
 import sys
 from logger.custom_logger import customLogger
 
-logger=customLogger().get_logger(__file__)
+# logger=customLogger().get_logger(__file__)
 
 
 class DocumentPortalException(Exception):
@@ -21,12 +21,12 @@ class DocumentPortalException(Exception):
     Traceback:{self.traceback_str}
         """
 
-if __name__== "__main__": 
-    try:
-        #simulate an error
-        a=1/0
-        print(a)
-    except Exception as e:
-        app_exec=DocumentPortalException(e,sys)
-        logger.error(app_exec)
-        raise app_exec
+# if __name__== "__main__": 
+#     try:
+#         #simulate an error
+#         a=1/0
+#         print(a)
+#     except Exception as e:
+#         app_exec=DocumentPortalException(e,sys)
+#         logger.error(app_exec)
+#         raise app_exec
