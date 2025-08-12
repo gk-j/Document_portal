@@ -20,7 +20,7 @@ class DocumentIngestion:
         self.session_path = self.base_dir / self.session_id
         self.session_path.mkdir(parents=True, exist_ok=True)
 
-        self.log.info("DocumentComparator initialized", session_path=str(self.session_path))
+        self.logger.info("DocumentComparator initialized", session_path=str(self.session_path))
 
     def save_uploaded_files(self, reference_file, actual_file):
         """
