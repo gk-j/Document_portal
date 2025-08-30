@@ -77,7 +77,7 @@ class FaissManagerDI:
         if new_docs:
             self.vs.add_documents(new_docs)
             self.vs.save_local(str(self.index_dir))
-            self._save_meta()
+            self._save_meta_data()
         return len(new_docs)
 
     def load_or_create(self,texts:Optional[List[str]]=None, metadatas: Optional[List[dict]] = None):
@@ -268,6 +268,8 @@ class ChatIngestionDI:
                 raise ValueError("No valid documents loaded")
             
             chunks = self._split(docs, chunk_size=chunk_size, chunk_overlap=chunk_overlap)
+
+            ## Faiss Manager
             fm = FaissManagerDI(self.faiss_dir, self.model_loader)
             
             texts = [c.page_content for c in chunks]

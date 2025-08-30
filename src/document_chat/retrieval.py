@@ -15,21 +15,26 @@ from model.models import PromptType
 
 
 class ConversationalRAG:
-    def __init__(self,session_id:str, retriever=None):
+    def __init__(self,session_id:Optional[str], retriever=None):
         try:
             self.log =  customLogger().get_logger(__name__)
             self.session_id = session_id
             self.llm =  self._load_llm()
             self.contextualize_prompt: ChatPromptTemplate = PROMPT_REGISTRY[PromptType.CONTEXTUALIZE_QUESTION.value]
             self.qa_prompt: ChatPromptTemplate = PROMPT_REGISTRY[PromptType.CONTEXT_QA.value]
-            if retriever is None:
-                raise ValueError("Retriever cannot be None")
+
+            # Lazy pieces
             self.retriever = retriever
-            self._build_lcel_chain()
+            self.chain = None
+            if self.retriever is not None:
+                self._build_lcel_chain()
+            
             self.log.info("ConversationalRAG initialized", session_id=self.session_id)
         except Exception as e:
             self.log.error("Failed to initialize ConversationalRAG", error=str(e))
             raise DocumentPortalException("Initialization error in ConversationalRAG", sys)
+
+    # ---------- Public API ----------
 
     def load_retriever_from_faiss(self,index_path: str):
         """
@@ -46,6 +51,7 @@ class ConversationalRAG:
                 allow_dangerous_deserialization=True,  # only if you trust the index
             )
             self.retriever = vectorstore.as_retriever(search_type="similarity", search_kwargs={"k": 5})
+            self._build_lcel_chain() 
             self.log.info("FAISS retriever loaded successfully", index_path=index_path, session_id=self.session_id)
             return self.retriever
         except Exception as e:
@@ -59,7 +65,7 @@ class ConversationalRAG:
             chat_history (Optional[List[BaseMessage]], optional): _description_. Defaults to None.
         """
         try:
-            pass
+            
             chat_history = chat_history or []
             payload={"input": user_input, "chat_history": chat_history}
             answer = self.chain.invoke(payload)

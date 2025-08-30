@@ -8,11 +8,11 @@ from fastapi.templating import Jinja2Templates
 from pathlib import Path
 
 
-from src.document_ingestion.data_ingestion import DocumentHandlerDI,DocumentCompareDI,ChatIngestionDI,FaissManagerDI
+from src.document_ingestion.data_ingestion import DocumentHandlerDI,DocumentCompareDI,ChatIngestionDI
 from src.document_analyzer.data_analysis import DocumentAnalyzer
 from src.document_compare.document_comparator import DocumentComparator
 from src.document_chat.retrieval import ConversationalRAG
-
+from utils.document_ops import FastAPIFileAdapter,read_pdf_via_handler
 
 FAISS_BASE = os.getenv("FAISS_BASE", "faiss_index")
 UPLOAD_BASE = os.getenv("UPLOAD_BASE", "data")
@@ -41,28 +41,14 @@ def health() -> Dict[str, str]:
     return {"status": "ok", "service": "document-portal"}
 
 
-def _read_pdf_via_handler(handler: DocumentHandlerDI, path: str) -> str:
-    if hasattr(handler, "read_pdf"):
-        return handler.read_pdf(path)  # type: ignore
-    if hasattr(handler, "read_"):
-        return handler.read_(path)  # type: ignore
-    raise RuntimeError("DocumentHandler has neither read_pdf nor read_ method.")
 
-class FastAPIFileAdapter:
-    """Adapt FastAPI UploadFile -> .name + .getbuffer() API"""
-    def __init__(self, uf: UploadFile):
-        self._uf = uf
-        self.name = uf.filename
-    def getbuffer(self) -> bytes:
-        self._uf.file.seek(0)
-        return self._uf.file.read()
 
 @app.post("/analyze")
 async def analyze_document(file: UploadFile = File(...)) -> Any:
     try:
         dh = DocumentHandlerDI()
         saved_path = dh.save_pdf(FastAPIFileAdapter(file))
-        text = _read_pdf_via_handler(dh,saved_path)
+        text = read_pdf_via_handler(dh,saved_path)
 
         analyzer=DocumentAnalyzer()
         result = analyzer.analyze_document(text)
@@ -76,10 +62,10 @@ async def analyze_document(file: UploadFile = File(...)) -> Any:
 async def compare_documents(reference: UploadFile = File(...), actual: UploadFile = File(...)) -> Any:
     try:
         dc = DocumentCompareDI()
-        ref_path,act_path = dc.save_uploaded_file(FastAPIFileAdapter(reference),FastAPIFileAdapter(actual))
+        ref_path,act_path = dc.save_uploaded_files(FastAPIFileAdapter(reference),FastAPIFileAdapter(actual))
         _=ref_path,act_path
 
-        combined_text = dc.combine_document()
+        combined_text = dc.combine_documents()
 
         comp = DocumentComparator()
         df = comp.compare_documents(combined_text)
@@ -89,6 +75,8 @@ async def compare_documents(reference: UploadFile = File(...), actual: UploadFil
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Comparison failed: {e}")
 
+
+# --------CHAT INDEX-------
 @app.post("/chat/index")
 async def chat_build_index(
     files: List[UploadFile] = File(...),
@@ -111,7 +99,7 @@ async def chat_build_index(
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Indexing failed: {e}")
-    
+# --------- CHAT QUERY --------    
 @app.post("/chat/query")
 async def chat_query(
     question: str = Form(...),
