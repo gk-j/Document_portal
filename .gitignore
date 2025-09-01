@@ -7,5 +7,7 @@ logs/
 *.pyc
 test.py
 data/
-test_***
+test_document_compare.py
+test_multi_doc_chat.py
+test_single_chat.py
 faiss_index/
