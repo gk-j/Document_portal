@@ -110,6 +110,7 @@ class ModelLoader:
         if provider == "google":
             llm=ChatGoogleGenerativeAI(
                 model=model_name,
+                google_api_key=self.api_key_mgr.get("GOOGLE_API_KEY"),
                 temperature=temperature,
                 max_output_tokens=max_tokens
             )
@@ -117,14 +118,14 @@ class ModelLoader:
         elif provider == "groq":
             llm=ChatGroq(
                 model=model_name,
-                api_key=self.api_keys["GROQ_API_KEY"],
+                api_key=self.api_key_mgr.get("GROQ_API_KEY"),
                 temperature=temperature,
             )
             return llm
         elif provider == "openai":
             return ChatOpenAI(
                 model=model_name,
-                api_key=self.api_keys["OPENAI_API_KEY"],
+                api_key=self.api_key_mgr.get("OPENAI_API_KEY"),
                 temperature=temperature,
                 max_tokens=max_tokens
             )

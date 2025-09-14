@@ -1,0 +1,25 @@
+1.Create AWS Account
+2.AWS IAM user
+2.1 Fetch the credential from the IAM USER: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
+2.2 Keep these credentials inside your Github secrets 
+3. AWS Secret Manager: keep your api keys over here
+4.Setup your ECR
+5. Create Cluster on your ECS
+6. add the policy(incline_policy) either inside your user or inside the role
+6.1 these are the custom policies giving correct access b/w services
+6.2 go to incline_policy.py for custom policy codes (there are two policies)
+6.3 create the policies with the json code with appropriate names
+7. Go inside EC2 and add your inbound details
+    open EC2->in side bar go to security group -> click on security group id then add the inbound rule 
+                    TYPE : Custom 
+                    TCP  : TCP8000
+                    ANYWHERE IP4 0.0.0.0/0
+8. For accessing the application
+    ECS Cluster -> service -> task -> public IP4
+    if you are not able to get the public IP4 there 
+        then click on the ENI id there check with your public IP4 Address
+
+for executing the application this should be running on your browser
+    http:/<your_public_ip>:8080
+
+9. For logs: go to cloud watch
